@@ -87,7 +87,6 @@ def choose():
     session = data['session']
     round_num = data['round']
     idx = data['choice']
-    price = constants.PRODUCT_PRICES[idx]
     with get_db() as db:
         cur = db.execute('SELECT omega, decoy FROM rounds WHERE session_id=? AND round=?', (session, round_num))
         row = cur.fetchone()
@@ -95,7 +94,13 @@ def choose():
             return jsonify({'error': 'round not started'}), 400
         omega, decoy = row
         offsets = constants.QUALITY_OFFSETS_WITH_DECOY if decoy else constants.QUALITY_OFFSETS_NO_DECOY
-        quality = omega + offsets[idx]
+
+    if not (0 <= idx < len(offsets)):
+        return jsonify({'error': 'invalid choice index'}), 400
+
+    price = constants.PRODUCT_PRICES[idx]
+    quality = omega + offsets[idx]
+    with get_db() as db:
         cur = db.execute('SELECT SUM(cost) FROM logs WHERE session_id=? AND round=?', (session, round_num))
         qcost = cur.fetchone()[0] or 0.0
         payoff = (quality / constants.PAYOFF_QUALITY_SCALE) - price - qcost
