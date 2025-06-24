@@ -16,6 +16,12 @@ python -m backend.app
 The frontend is a minimal static bundle located in `frontend/`. Serve it
 with any webserver or the built‑in Flask static file system.
 
+## OpenAI API Key
+
+Set the `OPENAI_API_KEY` environment variable before starting the backend.
+If the key is not defined or starts with `sk-demo`, the backend will return
+mock completions instead of calling the real API.
+
 ## Development
 
 The backend exposes a REST API used by the browser client:
